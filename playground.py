@@ -5,39 +5,28 @@ import difflib
 db = open('workouts.json', 'r', encoding="utf-8")
 json_db = json.load(db)
 
-def extractKeys(entry, format):
-    entry = entry.lower()
-    format = format.lower()
-    split_entry = [char for char in entry if char != " "]
-    joined = []
-    for char in split_entry:
+def format_entry(str, format):
+    form_str = []
+    for char in str:
         if(char.isdigit()):
             break
-        joined.append(char)
+        else:
+            form_str.append(char)
+    return ''.join(form_str)+format
     
-    return "".join(joined) + format.lower()
-
-    # return row.name && row.id 
 
 def map_ids(str, format):
     obj_lsit = []
-    row_list = []
-
+    best_matches = []
     for row in json_db:
-        row_entry = [char for char in row['activity_name'] if char != ' ']
-        clost_list = []
-        for char in row_entry:
-            if(char == '(' or char == ")"):
-                continue
-            clost_list.append(char)
-        row_list.append(''.join(clost_list))
-
+        obj_lsit.append(row['activity_name'])
     for entry in str:
-        key = extractKeys(entry, format)
-        print(difflib.get_close_matches(key, row_list, 1))
+         best_match = difflib.get_close_matches(format_entry(entry,format), obj_lsit, n=1, cutoff=0.7)
+         print(best_match)  
 
         
 
+    # print(difflib.get_close_matches(key, row_list, 1))
     # return obj_list || obj_list.append[{"entry": [entry.name entry['id'], reps]}]
 
 
