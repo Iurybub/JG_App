@@ -1,6 +1,6 @@
-from re import search
 import csv
 import json
+import difflib
 
 def column(matrix, i):
     return [row[i] for row in matrix]
@@ -21,19 +21,26 @@ def round_extractor(str):
             num_list.append(char)
     return num_list[-1] 
 
-def util_map(act, format):
-    act.lower()
-    format.lower()
-    for row in json_db:
-        if(act.split(" ")[0] in row["activity_name"].split(" ") and format in row["activity_name"].split(" ")):
-            return (row["activity_name"], row["id"], act)
-        
+def format_entry(str, format):
+    form_str = []
+    for char in str:
+        if(char.isdigit()):
+            break
+        else:
+            form_str.append(char)
+    return ''.join(form_str)+format
 
-def map_id_to_wk(str):
-    obj_list = []
+
+def map_ids(str, format):
+    hold_list = [row['activity_name'] for row in json_db]
+    best_matches = []
     for entry in str:
-       print(util_map(entry, format="GYM"))
-
+        best_match = difflib.get_close_matches(format_entry(
+            entry, format), hold_list, n=1, cutoff=0.6)
+        for row in json_db:
+            if (row['activity_name'] == best_match[0]):
+                best_matches.append(row)
+    return best_matches
                 
     pass # return [{'glute gridge': 309}]
 
@@ -75,12 +82,20 @@ for item in separated_cells:
             "workout": date_extractor(item[0])[1]
         },
         "rounds": round_extractor(item[1]),
-        "workouts": item[2:]
+        "workouts": map_ids(item[2:], format="GYM")
     }
     json_objs.append(obj)
 
-for wk in json_objs:
+f = open("file.txt", 'w')
+
+for wk in separated_cells:
     print(wk)
 
+# for wk in json_objs:
+#     f.write(str(wk))
+#     f.write('\n')
+#     f.write('\n')
 
+
+f.close()
 file.close()
